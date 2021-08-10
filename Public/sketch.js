@@ -10,7 +10,13 @@ let words
 let wordInput
 let submitBtn
 let generateBtn
+let gameGenerated
+let robotto
 
+
+function preload(){
+    robotto= loadFont('Assets/Fonts/Roboto-Bold.ttf')
+}
 
 function setup(){
     createCanvas(windowWidth,windowHeight)
@@ -30,7 +36,10 @@ function setup(){
     words=[]
     grid=[]
     outputGrid=[]
+
+    gameGenerated=false
     selecting=true
+
     origSize=30
     origWidth=500
     squareSide=origWidth/origSize
@@ -110,7 +119,9 @@ function draw(){
                     j=0
                 }
 
-                text(words[i].string, 550 + (j*150), 100 + (Math.floor(i/3)*50), 150, 50)
+                textFont('robotto')
+                if(100 + (Math.floor(i/3)*35)<490)
+                text(words[i].string, 550 + (j*150), 100 + (Math.floor(i/3)*35), 150, 35)
             }
         }
     pop()}
@@ -132,7 +143,7 @@ function mousePressed(){
             selecting=true
         }
     }else if((mouseX>squareSide && mouseX<525) && (mouseY>squareSide && mouseY<525) && words.length!=0){
-        alert('Can\'t change the size of your grid once a word has been submitted')
+        alert('You can\'t change the size of your grid once a word has been submitted')
     }
 }
 
@@ -144,7 +155,6 @@ function keyPressed(){
             break
 
         case 13:
-            print('aaa')
             submitWord()
             break
     }
@@ -152,25 +162,27 @@ function keyPressed(){
 
 function submitWord(){
     let word=wordInput.value()
-    if(word!='' && selecting==false && (word.length<=Math.ceil(gridX - gridX/3) || word.length<=Math.ceil(gridY - gridY/3))){
-        words.push(new Word(word, word.length, words.length))
-        setTimeout(function(){
-            assignCoords(words[words.length-1].index)
-        },100)
+    if(gameGenerated==false){
+        if(word!='' && selecting==false && (word.length<=Math.ceil(gridX - gridX/3) || word.length<=Math.ceil(gridY - gridY/3))){
+            words.push(new Word(word, word.length, words.length))
+            setTimeout(function(){
+                assignCoords(words[words.length-1].index)
+            },100)
 
-        wordInput.value(null)
-    }else{
-        if(selecting==true){
             wordInput.value(null)
-            setTimeout(function(){
-                alert('First choose the size of the grid')
-            },100)
-        }
-        if(!(word.length<=Math.ceil(gridX - gridX/3) || word.length<=Math.ceil(gridY - gridY/3))){
-            wordInput.value(null)
-            setTimeout(function(){
-                alert('Your word does not fit into the grid')
-            },100)
+        }else{
+            if(selecting==true){
+                wordInput.value(null)
+                setTimeout(function(){
+                    alert('First choose the size of the grid')
+                },100)
+            }
+            if(!(word.length<=Math.ceil(gridX - gridX/3) || word.length<=Math.ceil(gridY - gridY/3))){
+                wordInput.value(null)
+                setTimeout(function(){
+                    alert('Your word does not fit into the grid')
+                },100)
+            }
         }
     }
 }
@@ -184,6 +196,62 @@ function generatePuzzle(){
                 outputGrid[i][j].letter=ranLetter
                 outputGrid[i][j].inUse=true
             }
+        }
+    }
+    gameGenerated=true
+}
+
+function assignCoords(index){
+    let failed=false
+    let direction=words[index].direction
+    let word=words[index].string
+
+    let origX=round(random(1, (gridX - word.length)))
+    let origY=round(random(1, gridY))
+
+    if(direction==0){
+        for(let i=0; i<word.length; i++){
+            if(outputGrid[origX-1 + i][origY-1].inUse==true){
+                assignCoords(index)
+                failed=true
+                print('overlap')
+                return
+            }
+        }
+
+        if(failed==false){
+            print('assigned')
+            for(let i=0; i<word.length; i++){
+                outputGrid[origX-1 + i][origY-1].inUse=true
+                outputGrid[origX-1 + i][origY-1].letter=word.charAt(i)
+            }
+
+            words[index].x=origX
+            words[index].y=origY
+
+            return
+        }
+    }else{
+        for(let i=0; i<word.length; i++){
+            if(outputGrid[origX-1 + i][origY-1].inUse==true){
+                assignCoords(index)
+                failed=true
+                print('overlap')
+                return
+            }
+        }
+
+        if(failed==false){
+            print('assigned')
+            for(let i=0; i<word.length; i++){
+                outputGrid[origX-1 + i][origY-1].inUse=true
+                outputGrid[origX-1 + i][origY-1].letter=word.charAt(i)
+            }
+
+            words[index].x=origX
+            words[index].y=origY
+
+            return
         }
     }
 }
