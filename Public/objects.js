@@ -8,14 +8,17 @@ class Grid{
 
     drawSquare(){
         push()
-        fill(180)
+        if(gameGenerated==false)
+            fill(180)
+        else
+            fill(230)
         square(this.x * squareSide + 25,this.y * squareSide + 25,squareSide)
-        if(this.letter!=''){
+        if(this.letter!='' && gameGenerated==true){
             fill(0)
             textAlign(CENTER, CENTER)
             textSize(squareSide)
             stroke(0)
-            strokeWeight(1)
+            strokeWeight(0)
             textFont('robotto')
             text(this.letter, (this.x)*squareSide + 25, (this.y)*squareSide + 25, squareSide, squareSide)
         }

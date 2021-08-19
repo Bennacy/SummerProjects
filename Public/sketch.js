@@ -55,9 +55,11 @@ function setup(){
 function draw(){
     background(255)
 
-    for(let i=0; i<origSize; i++){ // Draw background grid
-        for(let j=0; j<origSize; j++){
-            square(grid[i][j].x * squareSide + 25,grid[i][j].y * squareSide + 25,squareSide)
+    if(gameGenerated==false){
+        for(let i=0; i<origSize; i++){ // Draw background grid
+            for(let j=0; j<origSize; j++){
+                square(grid[i][j].x * squareSide + 25,grid[i][j].y * squareSide + 25,squareSide)
+            }
         }
     }
 
@@ -97,6 +99,7 @@ function draw(){
 
     push()
     text('X: '+gridX+' Y: '+gridY, 312.5,600)
+    text('Press \'Ctrl\' to restart', 312.5,630)
     pop()
 
     {push() // Word box
@@ -150,7 +153,7 @@ function mousePressed(){
 function keyPressed(){
     switch(keyCode){
         case 17:
-            if(confirm('Refresh the page?'))
+            if(confirm('Restart the game?'))
                 setup()
             break
 
@@ -206,10 +209,10 @@ function assignCoords(index){
     let direction=words[index].direction
     let word=words[index].string
 
-    let origX=round(random(1, (gridX - word.length)))
-    let origY=round(random(1, gridY))
-
     if(direction==0){
+        let origX=round(random(1, (gridX - word.length)))
+        let origY=round(random(1, gridY))
+    
         for(let i=0; i<word.length; i++){
             if(outputGrid[origX-1 + i][origY-1].inUse==true){
                 assignCoords(index)
@@ -231,9 +234,13 @@ function assignCoords(index){
 
             return
         }
-    }else{
+    }
+    else{
+        let origX=round(random(1, (gridX)))
+        let origY=round(random(1, (gridY - word.length)))
+    
         for(let i=0; i<word.length; i++){
-            if(outputGrid[origX-1 + i][origY-1].inUse==true){
+            if(outputGrid[origX-1][origY-1 + i].inUse==true){
                 assignCoords(index)
                 failed=true
                 print('overlap')
@@ -244,8 +251,8 @@ function assignCoords(index){
         if(failed==false){
             print('assigned')
             for(let i=0; i<word.length; i++){
-                outputGrid[origX-1 + i][origY-1].inUse=true
-                outputGrid[origX-1 + i][origY-1].letter=word.charAt(i)
+                outputGrid[origX-1][origY-1 + i].inUse=true
+                outputGrid[origX-1][origY-1 + i].letter=word.charAt(i)
             }
 
             words[index].x=origX
